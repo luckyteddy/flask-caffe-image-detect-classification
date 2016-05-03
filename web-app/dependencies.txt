@@ -1,0 +1,15 @@
+cv2
+flask
+matplotlib
+nose
+numpy
+pandas
+pillow
+PySide
+pytest
+pyyaml
+scikit-image
+scipy
+setuptools
+tornado
+werkzeug

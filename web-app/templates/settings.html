@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<!--
+Caffe evaluation with selective search.
+
+Copyright (c) 2016, Zdeněk Hřebíček
+
+This work is based on
+BVLC/Caffe web_demo example
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Caffe evaluation with selective search">
+    <meta name="author" content="Zdeněk Hřebíček">
+
+    <title>Caffe evaluation with selective search</title>
+
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            border: 0;
+            outline: 0;
+        }
+
+        body {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            line-height: 1.5em;
+            color: #232323;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-family: Times, serif;
+            line-height: 1.5em;
+        }
+
+        html {
+            width: 100%;
+            min-height: 100%;
+        }
+
+        div {
+            height: 100%;
+            width: 100%;
+        }
+
+        input[type=text] {
+            padding: 0;
+            height: 30px;
+            position: relative;
+            left: 0;
+            outline: none;
+            border: 3px solid black;
+            border-color: rgba(0, 0, 0, .75);
+            background-color: white;
+            font-size: 14px;
+        }
+
+        #header {
+            box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.7);
+            text-align: center;
+        }
+
+        #content {
+            padding-top: auto;
+            padding-bottom: 100px;
+            margin: 0 auto;
+            position: relative;
+            height: auto;
+        }
+
+        #footer {
+            bottom: 0;
+            box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.4);
+            height: 22px;
+            left: 1;
+            right: 2;
+            width: 300px;
+            position: fixed;
+            z-index: 100000;
+            background: gray;
+            border: 1px black;
+            border-style: solid;
+        }
+
+        .col1 {
+            float: left;
+            width: 50%;
+            padding-bottom: 10px;
+        }
+
+        .col2 {
+            float: right;
+            width: 50%;
+            padding-bottom: 10px;
+        }
+
+        .featured_content {
+            min-height: 200px;
+            max-height: 200px;
+            width: 200px;
+            background-color: grey;
+            position: fixed;
+            margin: auto 0px;
+            margin-top: 150px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Begin page content -->
+    <div class="container">
+        <div id="header">
+            <h1><a href="/">Caffe evaluation with selective search</a></h1>
+            <p>
+                The <a href="http://caffe.berkeleyvision.org">Caffe</a> neural network library makes implementing state-of-the-art computer vision systems easy.
+            </p>
+            You can choose
+            <a href="https://github.com/belltailjp/selective_search_py">belltailjp/selective_search_py</a> or <a href="https://github.com/AlpacaDB/selectivesearch">AlpacaDB/selectivesearch</a> implementation of selective search.
+            </p>
+        </div>
+
+        <div id="content">
+            <form id="formupload" class="form-inline" role="form" method="post" action="classification" enctype="multipart/form-data">
+                <h2>Caffe settings</h2>
+                {% if has_result %} {% if not result[0] %}
+                <!-- we have error in the result. -->
+                <div class="alert alert-danger">{{ result[1] }} Did you provide a valid files or valid paths for all files? </div>
+                {% endif %}{% endif %}
+                <hr></hr>
+                <div class="col1">
+                    <h4>Model</h4>
+                    <p>Usually file called <code>deploy.protox</code>.</p>
+                    <input size="50%" type="text" name="model_definition"
+                    value="./caffe/models/bvlc_reference_caffenet/deploy.prototxt">
+                    <h4>Pretrained model</h4>
+                    <p>Usually file called like <code>*.caffemodel</code>.</p>
+                    <input size="50%" type="text" name="trained_model"
+                    value="./caffe/models/bvlc_reference_caffenet/bvlc_reference_caffenet.caffemodel">
+                    <hr>
+                    <h4>Class hierarchy</h4>
+                    <p>Hierarchy file for better qualification, usually called
+                        <code>*.bet.pickle</code></p>
+                    <input size="50%" type="text" name="hierarchy"
+                    value="./caffe/data/ilsvrc12/imagenet.bet.pickle">
+                    <br>
+                </div>
+                <div class="col2">
+                    <h4>Mean file</h4>
+                    <p>File containing image means usually called <code>*.mean.npy</code> </p>
+                    <input size="50%" type="text" name="mean_file"
+                    value="./caffe/python/caffe/imagenet/ilsvrc_2012_mean.npy">
+                    <h4>Labels</h4>
+                    <p>Class labels file, usually called <code>synset_words.txt</code></p>
+                    <input size="50%" type="text" name="labels"
+                    value="./caffe/data/ilsvrc12/synset_words.txt">
+                    <hr>
+                    <h4>Use *.bet.pickle file?</h4>
+                    <input type="radio" name="pickle" value="True" boolean=True> Yes
+                    <br>
+                    <input type="radio" name="pickle" value="False" boolean=False checked> No
+                    <br>
+                    <i>The file must be suported even if you do not intend to use it.</i>
+                </div>
+                <h4>Computation backend</h4>
+                <input type="radio" name="backend" value="True" checked> GPU backend
+                <br>
+                <input type="radio" name="backend" value="False"> CPU backend
+                <br>
+                <hr></hr>
+                <div>
+                    <h2>Seletive search settings</h2>
+                    <hr></hr>
+                    <p>
+                        Selective search evaluation threshold :
+                        <br>
+                        <input style="margin-left: 200px;" size=4 name="threshold" value="0.8" type="text" placeholder "0.0-99.9">
+                    </p>
+                    <p>
+                        Size of found objects in pixels:
+                        <br>
+                        <input style="margin-left: 200px;" size=10 name="min" value="2000" type="text"> min
+                        <br>
+                        <input style="margin-left: 200px;" size=10 name="max" value="100000" type="text"> max
+                    </p>
+
+                    <p>
+                        Maximum overlap of found objets in pixels:
+                        <br>
+                        <input style="margin-left: 200px;" size=10 name="overlap" value="250" type="text">
+                    </p>
+                    <p>
+                        <input type="radio" id="input_enabled" name="selectivesearch" checked value="noselectivesearch"> No selective search
+                    </p>
+                    <p>
+                        <input type="radio" id="input_disabled" name="selectivesearch" value="belltailp"> belltailjp/selective_search_py
+                    </p>
+                    <p>
+                        <input type="radio" id="input_disabled" name="selectivesearch" value="alpacadb"> AlpacaDB/selectivesearch
+                    </p>
+                </div>
+                <hr></hr>
+                <input class="btn btn-primary" type="submit" value="Save caffe settings & move to selective search settings">
+                <!--<input type="submit" class="btn btn-primary" value="Classify File" id="classifyfile"></input>-->
+            </form>
+        </div>
+        <div id="footer">
+            <div class="container">
+                <p>Zděněk Hřebíček, diploma thesis 2016</a>
+            </div>
+        </div>
+</body>
+
+</html>
