@@ -443,23 +443,22 @@ class ImagenetClassifier(object):
 
         def filter_overlayed_images():
             for label in groups:
-                oldLabel = ""
-                oldCrop = (0, 0, 1, 1)
-                oldPrecision = 0
                 for item in groups.get(label):
                     precision, crop = item
                     for item_2 in groups.get(label):
                         precision_2, crop_2 = item_2
                         if item == item_2:
                             continue
-                        if regions_overlap(crop_2, crop):
+                        elif regions_overlap(crop, crop_2):
                             if precision >= precision_2:
                                 groups[label].remove(item_2)
                             else:
                                 groups[label].remove(item)
-        # To secure that there does not last two overlayed images we must call
-        #   this method twice. FIXME
-        filter_overlayed_images()
+                                # Recursion
+                                filter_overlayed_images()
+
+        # To secure that there does not last more overlayed images we must call
+        #   this method called recursively inside itself.
         filter_overlayed_images()
 
         # "Render" image classes and "bounding" boxes into list of images
