@@ -343,7 +343,6 @@ class ImagenetClassifier(object):
             x, y, w, h = r['rect']
             candidate = (x, y, w+x, h+y)
             candidates.add(candidate)
-
         result = self.render_valid_candidates(image, candidates)
         return result
 
@@ -355,9 +354,8 @@ class ImagenetClassifier(object):
         # feature_masks(Texture, Color, Fill, Size)
         regions = selective_search(image_ubyte,
                                    color_spaces=['rgb'],
-                                   ks=[500],
-                                   feature_masks=[(1, 0, 0, 1), (1, 1, 1, 1)])
-
+                                   ks=[500, 100],
+                                   feature_masks=[(1, 0, 0, 1), (0, 1, 1, 0)])
         # Fill in candidates
         for region in regions:
             size, (y0, x0, y1, x1) = region
@@ -403,7 +401,7 @@ class ImagenetClassifier(object):
                 h_b = height
             # Use CNN for clasification candidate
             classification_result = app.clf.classify_image(image[y_b:h_b,
-                                                                x_b:w_b])
+                                                                 x_b:w_b])
             # Do not use misshapen
             if not classification_result[0]:
                 continue
@@ -442,7 +440,6 @@ class ImagenetClassifier(object):
         for region in actual_regions:
             label, precision, crop = region
             groups[label].append((precision, crop))
-        print groups
 
         def filter_overlayed_images():
             for label in groups:
@@ -460,7 +457,6 @@ class ImagenetClassifier(object):
                                 groups[label].remove(item_2)
                             else:
                                 groups[label].remove(item)
-                                break
         # To secure that there does not last two overlayed images we must call
         #   this method twice. FIXME
         filter_overlayed_images()
