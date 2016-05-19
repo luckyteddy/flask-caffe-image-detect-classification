@@ -453,7 +453,10 @@ class ImagenetClassifier(object):
                             if precision >= precision_2:
                                 groups[label].remove(item_2)
                             else:
-                                groups[label].remove(item)
+                                # It could happen that we tried to delete
+                                #   nonexisting candidate
+                                if item in groups.get(label):
+                                    groups[label].remove(item)
                                 # Recursion
                                 filter_overlayed_images()
 
