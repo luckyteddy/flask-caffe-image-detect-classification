@@ -3,6 +3,8 @@ Caffe evaluation with selective search
 
 Image classification with simple object detection running as a Flask web server.
 
+*Note that you should use this only on pictures with maximal size around 1024 x 1024. It can take really long time for bigger pictures.*
+
 ## Requirements
 
 First thing you should do is to run this script:
