@@ -225,19 +225,24 @@ def allowed_file(filename):
 class ImagenetClassifier(object):
     default_args = {
         'model_def_file': (
-            'data/models/bvlc_alexnet/deploy.prototxt'
+#            'data/models/bvlc_alexnet/deploy.prototxt'
+            'caffe/models/ResNet/ResNet-50-deploy.prototxt'
             .format(REPO_DIRNAME)),
         'pretrained_model_file': (
-            'data/models/bvlc_alexnet/caffenet.final.caffemodel'
+#            'data/models/bvlc_alexnet/caffenet.final.caffemodel'
+            'caffe/models/ResNet/ResNet-50-model.caffemodel'
             .format(REPO_DIRNAME)),
         'mean_file': (
+#            'caffe/python/caffe/imagenet/ilsvrc_2012_mean.npy'
             'caffe/python/caffe/imagenet/ilsvrc_2012_mean.npy'
             .format(REPO_DIRNAME)),
         'class_labels_file': (
-            'data/models/bvlc_alexnet/synset_words.txt'
+#            'data/models/bvlc_alexnet/synset_words.txt'
+            'caffe/data/ilsvrc12/synset_words.txt'
             .format(REPO_DIRNAME)),
         'bet_file': (
-            'data/models/bvlc_alexnet/imagenet.bet.pickle'
+#            'data/models/bvlc_alexnet/imagenet.bet.pickle'
+            'caffe/data/ilsvrc12/imagenet.bet.pickle'
             .format(REPO_DIRNAME)),
     }
     for key, val in default_args.iteritems():
@@ -268,7 +273,7 @@ class ImagenetClassifier(object):
                 }
                 for l in f.readlines()
             ])
-        self.labels = labels_df.sort('synset_id')['name'].values
+        self.labels = labels_df.sort_values('synset_id')['name'].values
 
         self.bet = cPickle.load(open(bet_file))
         # A bias to prefer children nodes in single-chain paths
